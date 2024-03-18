@@ -7,7 +7,7 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 
 const urlDatabase = {
-  b2xVn2: 'http: //www.lighthouselabs.ca',
+  b2xVn2: 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com',
 };
 
@@ -28,6 +28,15 @@ console.log(generateRandomString());
 
 app.get('/', (req, res) => {
   res.send('Hello!');
+});
+
+app.get('/u/:id', (req, res) => {
+  console.log(req.params.id);
+
+  const longURL = urlDatabase[req.params.id];
+  console.log(longURL);
+
+  res.redirect(longURL);
 });
 
 app.get('/urls', (req, res) => {
@@ -64,7 +73,13 @@ app.get('/fetch', (req, res) => {
 
 app.post('/urls', (req, res) => {
   console.log(req.body);
-  res.send('ok');
+  let { longURL } = req.body;
+  if (!longURL.includes('https://')) longURL = 'https://' + longURL;
+
+  const randStr = generateRandomString();
+  urlDatabase[randStr] = longURL;
+  console.log(urlDatabase);
+  res.redirect(`/urls/${randStr}`);
 });
 
 app.listen(PORT, () => {
