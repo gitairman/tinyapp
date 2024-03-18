@@ -84,6 +84,15 @@ app.post('/urls', (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
+app.post('/urls/:id/edit', (req, res) => {
+  const id = req.params.id;
+
+  let { editedURL } = req.body;
+  if (!editedURL.includes('http')) editedURL = 'https://' + editedURL;
+  urlDatabase[id] = editedURL;
+  res.redirect('/urls');
+});
+
 app.post('/urls/:id/delete', (req, res) => {
   const id = req.params.id;
   delete urlDatabase[id];
