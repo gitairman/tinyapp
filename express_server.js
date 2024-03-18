@@ -74,7 +74,7 @@ app.get('/fetch', (req, res) => {
 app.post('/urls', (req, res) => {
   console.log(req.body);
   let { longURL } = req.body;
-  if (!longURL.includes('https://')) longURL = 'https://' + longURL;
+  if (!longURL.includes('http')) longURL = 'https://' + longURL;
 
   const randStr = generateRandomString();
   urlDatabase[randStr] = longURL;
