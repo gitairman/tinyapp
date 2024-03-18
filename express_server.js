@@ -4,10 +4,27 @@ const PORT = 8080; // default port 8080
 
 app.set('view engine', 'ejs');
 
+app.use(express.urlencoded({ extended: true }));
+
 const urlDatabase = {
   b2xVn2: 'http: //www.lighthouselabs.ca',
   '9sm5xK': 'http://www.google.com',
 };
+
+const generateRandomString = (len = 6) => {
+  let randIntArr = [];
+  let count = len;
+  while (count > 0) {
+    let randInt = Math.floor(Math.random() * 26 + 1) + 64;
+    let randCase = Math.floor(Math.random() * 2 + 1) === 1;
+    if (randCase) randInt += 32;
+    randIntArr.push(randInt);
+    count--;
+  }
+  return String.fromCharCode(...randIntArr);
+};
+
+console.log(generateRandomString());
 
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -16,6 +33,10 @@ app.get('/', (req, res) => {
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render('urls_index', templateVars);
+});
+
+app.get('/urls/new', (req, res) => {
+  res.render('urls_new');
 });
 
 app.get('/urls/:id', (req, res) => {
@@ -39,6 +60,11 @@ app.get('/set', (req, res) => {
 
 app.get('/fetch', (req, res) => {
   res.send(`a = ${a}`);
+});
+
+app.post('/urls', (req, res) => {
+  console.log(req.body);
+  res.send('ok');
 });
 
 app.listen(PORT, () => {
