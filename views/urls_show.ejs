@@ -19,8 +19,11 @@
         <p class="card-text">
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Edit</h3>
         <form method="POST" action="/urls/<%= id %>/edit">
-          <label for="edit_longURL">Edited URL to shorten</label>
+          <label for="edit_longURL">New URL: </label>
           <input type="text" id="edit_longURL" name="editedURL" />
           <button>Submit</button>
         </form>
