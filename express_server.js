@@ -72,14 +72,16 @@ app.get('/fetch', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-  console.log(req.body);
   let { longURL } = req.body;
   if (!longURL.includes('http')) longURL = 'https://' + longURL;
 
-  const randStr = generateRandomString();
-  urlDatabase[randStr] = longURL;
-  console.log(urlDatabase);
-  res.redirect(`/urls/${randStr}`);
+  let shortURL = null;
+  while (shortURL === null || urlDatabase.hasOwnProperty[shortURL]) {
+    shortURL = generateRandomString();
+  }
+
+  urlDatabase[shortURL] = longURL;
+  res.redirect(`/urls/${shortURL}`);
 });
 
 app.post('/urls/:id/delete', (req, res) => {
