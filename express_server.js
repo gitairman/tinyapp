@@ -69,6 +69,19 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new', templateVars);
 });
 
+app.post('/urls', (req, res) => {
+  let { longURL } = req.body;
+  if (!longURL.includes('http')) longURL = 'https://' + longURL;
+
+  let shortURL = null;
+  while (shortURL === null || urlDatabase.hasOwnProperty[shortURL]) {
+    shortURL = generateRandomString();
+  }
+
+  urlDatabase[shortURL] = longURL;
+  res.redirect(`/urls/${shortURL}`);
+});
+
 app.get('/urls/:id', (req, res) => {
   const userId = req.cookies['user_id'];
   const user = users[userId];
@@ -81,8 +94,34 @@ app.get('/urls/:id', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
+app.post('/urls/:id/edit', (req, res) => {
+  const id = req.params.id;
+
+  let { editedURL } = req.body;
+  if (!editedURL.includes('http')) editedURL = 'https://' + editedURL;
+  urlDatabase[id] = editedURL;
+  res.redirect('/urls');
+});
+
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
+});
+
+app.get('/login', (req, res) => {
+  const userId = req.cookies['user_id'];
+  const user = users[userId];
+  const templateVars = user ? user : { email: '' };
+  res.render('login', templateVars);
+});
+
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  const user = getUserByEmail(email);
+  if (!user || user.password !== password) {
+    return;
+  }
+  res.cookie('user_id', user.id);
+  res.redirect('/urls');
 });
 
 app.get('/register', (req, res) => {
@@ -118,36 +157,8 @@ app.post('/register', (req, res) => {
   res.redirect('/urls');
 });
 
-app.post('/login', (req, res) => {
-  const { username } = req.body;
-  res.cookie('username', username);
-  res.redirect('/urls');
-});
-
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
-  res.redirect('/urls');
-});
-
-app.post('/urls', (req, res) => {
-  let { longURL } = req.body;
-  if (!longURL.includes('http')) longURL = 'https://' + longURL;
-
-  let shortURL = null;
-  while (shortURL === null || urlDatabase.hasOwnProperty[shortURL]) {
-    shortURL = generateRandomString();
-  }
-
-  urlDatabase[shortURL] = longURL;
-  res.redirect(`/urls/${shortURL}`);
-});
-
-app.post('/urls/:id/edit', (req, res) => {
-  const id = req.params.id;
-
-  let { editedURL } = req.body;
-  if (!editedURL.includes('http')) editedURL = 'https://' + editedURL;
-  urlDatabase[id] = editedURL;
+  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
