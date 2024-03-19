@@ -20,11 +20,12 @@
     <%- include('partials/_header') %>
 
     <main style="margin: 1em">
-      <h3>Register</h3>
+      <h3>Create Account</h3>
       <form method="POST" action="/register">
         <div class="form-group">
           <label for="email">Email address</label>
           <input
+            required
             type="email"
             class="form-control"
             id="email"
@@ -38,6 +39,8 @@
         <div class="form-group">
           <label for="password">Password</label>
           <input
+            required
+            minlength="4"
             type="password"
             class="form-control"
             id="password"

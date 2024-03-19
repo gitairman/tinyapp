@@ -118,7 +118,7 @@ app.post('/login', (req, res) => {
   const { email, password } = req.body;
   const user = getUserByEmail(email);
   if (!user || user.password !== password) {
-    return;
+    return res.status(403).send('No user found or password incorrect');
   }
   res.cookie('user_id', user.id);
   res.redirect('/urls');
@@ -152,14 +152,12 @@ app.post('/register', (req, res) => {
     password,
   };
   res.cookie('user_id', id);
-  console.log(users);
-
   res.redirect('/urls');
 });
 
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id');
-  res.redirect('/urls');
+  res.redirect('/login');
 });
 
 app.post('/urls/:id/delete', (req, res) => {
