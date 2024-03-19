@@ -49,7 +49,18 @@ app.get('/', (req, res) => {
 });
 
 app.get('/u/:id', (req, res) => {
-  const longURL = urlDatabase[req.params.id];
+  const userId = req.cookies['user_id'];
+  const user = users[userId];
+  const templateVars = user ? user : { email: '' };
+  const id = req.params.id;
+  if (!urlDatabase[id]) {
+    return res.render('error', {
+      ...templateVars,
+      message: 'URL does not exist!',
+    });
+  }
+
+  const longURL = urlDatabase[id];
 
   res.redirect(longURL);
 });
@@ -70,6 +81,10 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
+  const userId = req.cookies['user_id'];
+  if (!userId)
+    return res.status(403).send('You must be logged in to shorten URLs.');
+
   let { longURL } = req.body;
   if (!longURL.includes('http')) longURL = 'https://' + longURL;
 
@@ -95,7 +110,17 @@ app.get('/urls/:id', (req, res) => {
 });
 
 app.post('/urls/:id/edit', (req, res) => {
+  const userId = req.cookies['user_id'];
+  const user = users[userId];
+  const templateVars = user ? user : { email: '' };
   const id = req.params.id;
+  if (!userId) {
+    res.status(403);
+    return res.render('error', {
+      ...templateVars,
+      message: 'You must be logged in to edit URLs!',
+    });
+  }
 
   let { editedURL } = req.body;
   if (!editedURL.includes('http')) editedURL = 'https://' + editedURL;
