@@ -39,7 +39,11 @@ const generateRandomString = (len = 6) => {
   return String.fromCharCode(...randIntArr);
 };
 
-console.log(generateRandomString());
+const getUserByEmail = (email) => {
+  const allUsers = Object.values(users);
+  const foundUser = allUsers.find((user) => user.email === email);
+  return foundUser ? foundUser : null;
+};
 
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -90,6 +94,15 @@ app.get('/register', (req, res) => {
 
 app.post('/register', (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    res.status(400).send('Email and password cannot be blank!');
+    return;
+  }
+
+  if (getUserByEmail(email) !== null) {
+    res.status(400).send('User already exists with that email!');
+    return;
+  }
   let id = null;
   while (id === null || users.hasOwnProperty[id]) {
     id = generateRandomString();
