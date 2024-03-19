@@ -41,8 +41,7 @@ const generateRandomString = (len = 6) => {
 
 const getUserByEmail = (email) => {
   const allUsers = Object.values(users);
-  const foundUser = allUsers.find((user) => user.email === email);
-  return foundUser ? foundUser : null;
+  return allUsers.find((user) => user.email === email) || null;
 };
 
 app.get('/', (req, res) => {
