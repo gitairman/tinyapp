@@ -176,14 +176,14 @@ app.post('/login', (req, res) => {
   const user = getUserByEmail(email, users);
   if (!user) {
     res.status(403);
-    return res.render('error', {
+    return res.render('login', {
       message: `No user found with email '${email}'!`,
     });
   }
   const passwordMatch = bcrypt.compareSync(password, user.password);
   if (!passwordMatch) {
     res.status(403);
-    return res.render('error', {
+    return res.render('login', {
       message: `Password ${password} for ${email} is incorrect!`,
     });
   }
@@ -203,14 +203,14 @@ app.post('/register', (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     res.status(400);
-    return res.render('error', {
+    return res.render('register', {
       message: 'Email and password cannot be blank!',
     });
   }
 
   if (getUserByEmail(email, users) !== null) {
     res.status(400);
-    return res.render('error', {
+    return res.render('register', {
       message: `User already exists with email ${email}!`,
     });
   }
