@@ -22,12 +22,13 @@
       </div>
       <div class="card-body">
         <h3 class="card-title">Edit</h3>
-        <form method="POST" action="/urls/<%= id %>/edit">
+        <form method="POST" action="/urls/<%= id %>">
           <label for="edit_longURL">New URL: </label>
           <input
             type="url"
             id="edit_longURL"
             name="editedURL"
+            value="https://"
             placeholder="https://" />
           <button class="btn btn-primary">Submit</button>
         </form>

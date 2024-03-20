@@ -1,6 +1,12 @@
 const express = require('express');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
+const {
+  getUserByEmail,
+  urlsForUser,
+  generateRandomString,
+} = require('./helpers');
+
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -37,31 +43,6 @@ const users = {
   },
 };
 
-const generateRandomString = (len = 6) => {
-  let randIntArr = [];
-  let count = len;
-  while (count > 0) {
-    let randInt = Math.floor(Math.random() * 26 + 1) + 64;
-    let randCase = Math.floor(Math.random() * 2 + 1) === 1;
-    if (randCase) randInt += 32;
-    randIntArr.push(randInt);
-    count--;
-  }
-  return String.fromCharCode(...randIntArr);
-};
-
-const getUserByEmail = (email) => {
-  const allUsers = Object.values(users);
-  return allUsers.find((user) => user.email === email) || null;
-};
-
-const urlsForUser = (id) => {
-  return Object.entries(urlDatabase).reduce((a, [urlId, { userID }]) => {
-    if (userID === id) return { ...a, [urlId]: urlDatabase[urlId] };
-    return a;
-  }, {});
-};
-
 app.get('/', (req, res) => {
   res.redirect('/login');
 });
@@ -86,7 +67,10 @@ app.get('/urls', (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
 
-  const templateVars = { ...(user ? user : {}), urls: urlsForUser(userId) };
+  const templateVars = {
+    ...(user ? user : {}),
+    urls: urlsForUser(userId, urlDatabase),
+  };
 
   res.render('urls_index', templateVars);
 });
@@ -140,7 +124,7 @@ app.get('/urls/:id', (req, res) => {
       message: `'${id}' cannot be displayed until you are logged in!`,
     });
   }
-  const userUrls = urlsForUser(userId);
+  const userUrls = urlsForUser(userId, urlDatabase);
   if (!userUrls[id]) {
     res.status(403);
     return res.render('error', {
@@ -158,7 +142,7 @@ app.get('/urls/:id', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-app.post('/urls/:id/edit', (req, res) => {
+app.post('/urls/:id', (req, res) => {
   const userId = req.session.user_id;
   const id = req.params.id;
   if (!urlDatabase[id]) {
@@ -169,7 +153,7 @@ app.post('/urls/:id/edit', (req, res) => {
       .status(403)
       .send(`'${id}' cannot be edited until you are logged in!`);
   }
-  const userUrls = urlsForUser(userId);
+  const userUrls = urlsForUser(userId, urlDatabase);
   if (!userUrls[id]) {
     return res.status(403).send(`'${id}' does not belong to you!`);
   }
@@ -189,13 +173,19 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-  const user = getUserByEmail(email);
+  const user = getUserByEmail(email, users);
   if (!user) {
-    return res.status(403).send(`No user found with email '${email}'!`);
+    res.status(403);
+    return res.render('error', {
+      message: `No user found with email '${email}'!`,
+    });
   }
   const passwordMatch = bcrypt.compareSync(password, user.password);
   if (!passwordMatch) {
-    return res.status(403).send(`${password} did not match any records!`);
+    res.status(403);
+    return res.render('error', {
+      message: `Password ${password} for ${email} is incorrect!`,
+    });
   }
 
   req.session.user_id = user.id;
@@ -218,7 +208,7 @@ app.post('/register', (req, res) => {
     });
   }
 
-  if (getUserByEmail(email) !== null) {
+  if (getUserByEmail(email, users) !== null) {
     res.status(400);
     return res.render('error', {
       message: `User already exists with email ${email}!`,
@@ -255,7 +245,7 @@ app.post('/urls/:id/delete', (req, res) => {
       .status(403)
       .send(`'${id}' cannot be deleted until you are logged in!`);
   }
-  const userUrls = urlsForUser(userId);
+  const userUrls = urlsForUser(userId, urlDatabase);
   if (!userUrls[id]) {
     return res.status(403).send(`'${id}' does not belong to you!`);
   }
