@@ -18,6 +18,7 @@
     <%- include('partials/_header') %>
     <main style="margin: 1em">
       <h3>My URLs</h3>
+      <% if (typeof email == 'string' && email) { %>
       <table class="table">
         <thead>
           <tr>
@@ -31,7 +32,7 @@
           <% for (let id in urls) { %>
           <tr>
             <td><%= id %></td>
-            <td><%= urls[id] %></td>
+            <td><%= urls[id].longURL %></td>
             <td>
               <form method="GET" action="/urls/<%= id %>">
                 <button>Edit</button>
@@ -46,6 +47,11 @@
           <% } %>
         </tbody>
       </table>
+      <% } else {%>
+      <div class="alert alert-warning" role="alert">
+        You must log in to see your list of URLs!
+      </div>
+      <% } %>
     </main>
     <!-- Bootstrap JS -->
     <script

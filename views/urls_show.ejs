@@ -24,7 +24,11 @@
         <h3 class="card-title">Edit</h3>
         <form method="POST" action="/urls/<%= id %>/edit">
           <label for="edit_longURL">New URL: </label>
-          <input type="text" id="edit_longURL" name="editedURL" />
+          <input
+            type="text"
+            id="edit_longURL"
+            name="editedURL"
+            pattern="[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)" />
           <button class="btn btn-primary">Submit</button>
         </form>
       </div>
