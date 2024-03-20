@@ -121,31 +121,53 @@ app.get('/urls/:id', (req, res) => {
   const userId = req.cookies['user_id'];
   const user = users[userId];
   const id = req.params.id;
+
+  if (!urlDatabase[id]) {
+    res.status(404);
+    return res.render('error', {
+      ...user,
+      message: `'${id}' does not exist!`,
+    });
+  }
+  if (!userId) {
+    res.status(403);
+    return res.render('error', {
+      ...user,
+      message: `'${id}' cannot be displayed until you are logged in!`,
+    });
+  }
   const userUrls = urlsForUser(userId);
+  if (!userUrls[id]) {
+    res.status(403);
+    return res.render('error', {
+      ...user,
+      message: `'${id}' does not belong to you!`,
+    });
+  }
   const { longURL } = urlDatabase[id];
   const templateVars = {
     id,
     longURL,
     email: user ? user.email : '',
   };
-  if (!userUrls[id]) {
-    res.status(404);
-    return res.render('error', {
-      ...templateVars,
-      message: `'${id}' either does not exist, or you need to log in first`,
-    });
-  }
 
   res.render('urls_show', templateVars);
 });
 
 app.post('/urls/:id/edit', (req, res) => {
   const userId = req.cookies['user_id'];
-  const userUrls = urlsForUser(userId);
   const id = req.params.id;
+  if (!urlDatabase[id]) {
+    return res.status(404).send(`'${id}' does not exist!`);
+  }
+  if (!userId) {
+    return res
+      .status(403)
+      .send(`'${id}' cannot be edited until you are logged in!`);
+  }
+  const userUrls = urlsForUser(userId);
   if (!userUrls[id]) {
-    res.status(403).send('You must be logged in to edit URLs!');
-    return;
+    return res.status(403).send(`'${id}' does not belong to you!`);
   }
 
   let { editedURL } = req.body;
@@ -213,11 +235,18 @@ app.post('/logout', (req, res) => {
 
 app.post('/urls/:id/delete', (req, res) => {
   const userId = req.cookies['user_id'];
-  const userUrls = urlsForUser(userId);
   const id = req.params.id;
+  if (!urlDatabase[id]) {
+    return res.status(404).send(`'${id}' does not exist!`);
+  }
+  if (!userId) {
+    return res
+      .status(403)
+      .send(`'${id}' cannot be deleted until you are logged in!`);
+  }
+  const userUrls = urlsForUser(userId);
   if (!userUrls[id]) {
-    res.status(403).send('You must be logged in to delete URLs!');
-    return;
+    return res.status(403).send(`'${id}' does not belong to you!`);
   }
 
   delete urlDatabase[id];
