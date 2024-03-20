@@ -56,7 +56,7 @@ app.get('/u/:id', (req, res) => {
   if (!urlDatabase[id]) {
     return res.render('error', {
       ...templateVars,
-      message: 'URL does not exist!',
+      message: `short URL '${id}' does not exist!`,
     });
   }
 
@@ -82,8 +82,10 @@ app.get('/urls/new', (req, res) => {
 
 app.post('/urls', (req, res) => {
   const userId = req.cookies['user_id'];
-  if (!userId)
-    return res.status(403).send('You must be logged in to shorten URLs.');
+  const user = users[userId];
+  if (!user) {
+    res.status(403).send('You must be logged in to shorten URLs!');
+  }
 
   let { longURL } = req.body;
   if (!longURL.includes('http')) longURL = 'https://' + longURL;
@@ -101,11 +103,21 @@ app.get('/urls/:id', (req, res) => {
   const userId = req.cookies['user_id'];
   const user = users[userId];
   const id = req.params.id;
+
   const templateVars = {
     id,
     longURL: urlDatabase[id],
     email: user ? user.email : '',
   };
+
+  if (!urlDatabase[id]) {
+    res.status(404);
+    return res.render('error', {
+      ...templateVars,
+      message: `short URL '${id}' does not exist!`,
+    });
+  }
+
   res.render('urls_show', templateVars);
 });
 
