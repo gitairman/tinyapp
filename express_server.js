@@ -13,6 +13,7 @@ const PORT = 8080; // default port 8080
 app.set('view engine', 'ejs');
 
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(
   cookieSession({
     secret: 'sophieIsTheBest',
@@ -54,7 +55,7 @@ app.get('/u/:id', (req, res) => {
   if (!urlDatabase[id]) {
     return res.render('error', {
       ...(user ? user : {}),
-      message: `'${id}' does not exist!`,
+      error: `'${id}' does not exist!`,
     });
   }
 
@@ -109,34 +110,29 @@ app.get('/urls/:id', (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
   const id = req.params.id;
+  let error = null;
 
   if (!urlDatabase[id]) {
     res.status(404);
-    return res.render('error', {
-      ...user,
-      message: `'${id}' does not exist!`,
-    });
+    error = `'${id}' does not exist!`;
   }
-  if (!userId) {
+  if (!userId && !error) {
     res.status(403);
-    return res.render('error', {
-      ...user,
-      message: `'${id}' cannot be displayed until you are logged in!`,
-    });
+    error = `'${id}' cannot be displayed until you are logged in!`;
   }
   const userUrls = urlsForUser(userId, urlDatabase);
-  if (!userUrls[id]) {
+  if (!userUrls[id] && !error) {
     res.status(403);
-    return res.render('error', {
-      ...user,
-      message: `'${id}' does not belong to you!`,
-    });
+    error = `'${id}' does not belong to you!`;
   }
-  const { longURL } = urlDatabase[id];
+  if (error) res.append('error', error);
+
+  const { longURL } = urlDatabase[id] || { longURL: null };
   const templateVars = {
     id,
     longURL,
     email: user ? user.email : '',
+    error,
   };
 
   res.render('urls_show', templateVars);
@@ -177,14 +173,14 @@ app.post('/login', (req, res) => {
   if (!user) {
     res.status(403);
     return res.render('login', {
-      message: `No user found with email '${email}'!`,
+      error: `No user found with email '${email}'!`,
     });
   }
   const passwordMatch = bcrypt.compareSync(password, user.password);
   if (!passwordMatch) {
     res.status(403);
     return res.render('login', {
-      message: `Password ${password} for ${email} is incorrect!`,
+      error: `Password ${password} for ${email} is incorrect!`,
     });
   }
 
@@ -204,14 +200,14 @@ app.post('/register', (req, res) => {
   if (!email || !password) {
     res.status(400);
     return res.render('register', {
-      message: 'Email and password cannot be blank!',
+      error: 'Email and password cannot be blank!',
     });
   }
 
   if (getUserByEmail(email, users) !== null) {
     res.status(400);
     return res.render('register', {
-      message: `User already exists with email ${email}!`,
+      error: `User already exists with email ${email}!`,
     });
   }
   let id = null;
