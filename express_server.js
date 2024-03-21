@@ -66,7 +66,7 @@ app.get('/u/:id', (req, res) => {
     });
   }
 
-  urlDatabase[id].visited[Date.now()] = user ? user.email : 'anon';
+  urlDatabase[id].visited[Date.now()] = user ? user.email : 'anonymous';
   console.log(urlDatabase);
 
   const { longURL } = urlDatabase[id];
@@ -143,16 +143,8 @@ app.get('/urls/:id', (req, res) => {
   }
   if (error) res.append('error', error);
 
-  const { longURL } = urlDatabase[id] || { longURL: null };
-  const visited = Object.keys(urlDatabase[id].visited).length || 0;
-  const uniqueVisits = new Set(Object.values(urlDatabase[id].visited)).size;
-  const created = urlDatabase[id].created;
-
   const templateVars = {
-    created,
-    visited,
-    uniqueVisits,
-    longURL,
+    ...urlDatabase[id],
     id,
     email: user ? user.email : '',
     error,

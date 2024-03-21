@@ -35,17 +35,42 @@
               <td class="text-left"><p class="card-text"><%= created %></p></td>
             </tr>
             <tr>
-              <td class="text-right"><p class="card-text">Visited:</p></td>
-              <td class="text-left"><p class="card-text"><%= visited %></p></td>
-            </tr>
-            <tr>
               <td class="text-right">
                 <p class="card-text">Unique Visits:</p>
               </td>
               <td class="text-left">
-                <p class="card-text"><%= uniqueVisits %></p>
+                <p class="card-text">
+                  <%= new Set(Object.values(visited)).size %>
+                </p>
               </td>
             </tr>
+            <tr>
+              <td class="text-right"><p class="card-text">Total Visits:</p></td>
+              <td class="text-left">
+                <p class="card-text"><%= Object.keys(visited).length %></p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="table table-sm table-bordered m-auto w-auto">
+          <tbody>
+            <% if (Object.keys(visited).length > 0) { %>
+            <tr>
+              <td><h6>Visited On</h6></td>
+              <td><h6>Visited By</h6></td>
+            </tr>
+            <% for (const visit of Object.entries(visited)) { %>
+            <tr>
+              <td class="text-right">
+                <p class="card-text">
+                  <%= new Date(Number(visit[0])).toUTCString() %>
+                </p>
+              </td>
+              <td class="text-left">
+                <p class="card-text"><%= visit[1] %></p>
+              </td>
+            </tr>
+            <% } %> <% } %>
           </tbody>
         </table>
       </div>
