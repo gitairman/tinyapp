@@ -13,6 +13,7 @@ const PORT = 8080; // default port 8080
 
 app.set('view engine', 'ejs');
 
+// parses data from forms into req.body
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
@@ -26,13 +27,13 @@ const urlDatabase = {
   b6UTxQ: {
     longURL: 'https://www.tsn.ca',
     userID: 'aJ48lW',
-    created: Date.now(),
+    created: new Date(Date.now()).toDateString(),
     visited: {},
   },
   i3BoGr: {
     longURL: 'https://www.google.ca',
     userID: 'aJ48lW',
-    created: Date.now(),
+    created: new Date(Date.now()).toDateString(),
     visited: {},
   },
 };
@@ -59,15 +60,14 @@ app.get('/u/:id', (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
   const id = req.params.id;
+
   if (!urlDatabase[id]) {
-    return res.render('error', {
-      ...(user ? user : {}),
-      error: `'${id}' does not exist!`,
-    });
+    const error = `'${id}' does not exist!`;
+    return res.render('error', { ...user, error });
   }
 
+  // update time and date visited as the key and the user email if logged in or anonymous if not
   urlDatabase[id].visited[Date.now()] = user ? user.email : 'anonymous';
-  console.log(urlDatabase);
 
   const { longURL } = urlDatabase[id];
 
@@ -92,8 +92,9 @@ app.get('/urls', (req, res) => {
 app.post('/urls', (req, res) => {
   const userID = req.session.user_id;
   const user = users[userID];
+
   if (!user) {
-    res.status(403).send('You must be logged in to shorten URLs!');
+    return res.status(403).send('You must be logged in to shorten URLs!');
   }
 
   let { longURL } = req.body;
@@ -103,6 +104,7 @@ app.post('/urls', (req, res) => {
   while (shortURL === null || urlDatabase.hasOwnProperty[shortURL]) {
     shortURL = generateRandomString();
   }
+
   const created = new Date(Date.now()).toDateString();
 
   urlDatabase[shortURL] = {
@@ -136,6 +138,7 @@ app.get('/urls/:id', (req, res) => {
     res.status(403);
     error = `'${id}' cannot be displayed until you are logged in!`;
   }
+  // retrieve all the urls that belong to the logged in user
   const userUrls = urlsForUser(userId, urlDatabase);
   if (!userUrls[id] && !error) {
     res.status(403);

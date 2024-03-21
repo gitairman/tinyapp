@@ -4,12 +4,11 @@ const getUserByEmail = (email, usersDb) => {
 };
 
 const generateRandomString = (len = 6) => {
-  let randIntArr = [];
+  const randIntArr = [];
   let count = len;
   while (count > 0) {
-    let randInt = Math.floor(Math.random() * 26 + 1) + 64;
-    let randCase = Math.floor(Math.random() * 2 + 1) === 1;
-    if (randCase) randInt += 32;
+    const randCase = Math.floor(Math.random() * 2);
+    const randInt = Math.floor(Math.random() * 26 + 1) + (randCase ? 64 : 96);
     randIntArr.push(randInt);
     count--;
   }
