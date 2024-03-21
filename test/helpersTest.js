@@ -51,6 +51,11 @@ describe('getUserByEmail', () => {
     const expectedUser = testUsers.user2RandomID;
     assert.deepEqual(user, expectedUser);
   });
+  it('should return null if an empty string is provided for the email', () => {
+    const user = getUserByEmail('', testUsers);
+    const expectedUser = null;
+    assert.deepEqual(user, expectedUser);
+  });
 });
 
 describe('generateRandomString', () => {

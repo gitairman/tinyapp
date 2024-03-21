@@ -45,7 +45,8 @@ const users = {
 };
 
 app.get('/', (req, res) => {
-  res.redirect('/login');
+  const userId = req.session?.user_id;
+  res.redirect(userId ? '/urls' : '/login');
 });
 
 app.get('/u/:id', (req, res) => {
@@ -59,6 +60,11 @@ app.get('/u/:id', (req, res) => {
     });
   }
 
+  urlDatabase[id].visited++;
+
+  if (user && !urlDatabase[id].uniqueVisits.includes(user.email))
+    urlDatabase[id].uniqueVisits.push(user.email);
+
   const { longURL } = urlDatabase[id];
 
   res.redirect(longURL);
@@ -69,7 +75,7 @@ app.get('/urls', (req, res) => {
   const user = users[userId];
 
   const templateVars = {
-    ...(user ? user : {}),
+    ...user,
     urls: urlsForUser(userId, urlDatabase),
   };
 
@@ -98,10 +104,14 @@ app.post('/urls', (req, res) => {
   while (shortURL === null || urlDatabase.hasOwnProperty[shortURL]) {
     shortURL = generateRandomString();
   }
+  const created = new Date(Date.now()).toDateString();
 
   urlDatabase[shortURL] = {
+    created,
     longURL,
     userID,
+    visited: 0,
+    uniqueVisits: [],
   };
   res.redirect(`/urls/${shortURL}`);
 });
