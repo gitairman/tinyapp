@@ -27,15 +27,13 @@ const urlDatabase = {
     longURL: 'https://www.tsn.ca',
     userID: 'aJ48lW',
     created: Date.now(),
-    visited: 0,
-    uniqueVisits: [],
+    visited: {},
   },
   i3BoGr: {
     longURL: 'https://www.google.ca',
     userID: 'aJ48lW',
     created: Date.now(),
-    visited: 0,
-    uniqueVisits: [],
+    visited: {},
   },
 };
 
@@ -68,10 +66,8 @@ app.get('/u/:id', (req, res) => {
     });
   }
 
-  urlDatabase[id].visited++;
-
-  if (user && !urlDatabase[id].uniqueVisits.includes(user.email))
-    urlDatabase[id].uniqueVisits.push(user.email);
+  urlDatabase[id].visited[Date.now()] = user ? user.email : 'anon';
+  console.log(urlDatabase);
 
   const { longURL } = urlDatabase[id];
 
@@ -80,22 +76,17 @@ app.get('/u/:id', (req, res) => {
 
 app.get('/urls', (req, res) => {
   const userId = req.session.user_id;
+  if (!userId) return res.render('urls_index');
+
   const user = users[userId];
+  const urls = urlsForUser(userId, urlDatabase);
 
   const templateVars = {
     ...user,
-    urls: urlsForUser(userId, urlDatabase),
+    urls,
   };
 
   res.render('urls_index', templateVars);
-});
-
-app.get('/urls/new', (req, res) => {
-  const userId = req.session.user_id;
-  if (!userId) return res.redirect('/login');
-  const user = users[userId];
-  const templateVars = user;
-  res.render('urls_new', templateVars);
 });
 
 app.post('/urls', (req, res) => {
@@ -118,10 +109,17 @@ app.post('/urls', (req, res) => {
     created,
     longURL,
     userID,
-    visited: 0,
-    uniqueVisits: [],
+    visited: {},
   };
   res.redirect(`/urls/${shortURL}`);
+});
+
+app.get('/urls/new', (req, res) => {
+  const userId = req.session.user_id;
+  if (!userId) return res.redirect('/login');
+  const user = users[userId];
+  const templateVars = user;
+  res.render('urls_new', templateVars);
 });
 
 app.get('/urls/:id', (req, res) => {
@@ -145,9 +143,16 @@ app.get('/urls/:id', (req, res) => {
   }
   if (error) res.append('error', error);
 
-  // const { longURL } = urlDatabase[id] || { longURL: null };
+  const { longURL } = urlDatabase[id] || { longURL: null };
+  const visited = Object.keys(urlDatabase[id].visited).length || 0;
+  const uniqueVisits = new Set(Object.values(urlDatabase[id].visited)).size;
+  const created = urlDatabase[id].created;
+
   const templateVars = {
-    ...urlDatabase[id],
+    created,
+    visited,
+    uniqueVisits,
+    longURL,
     id,
     email: user ? user.email : '',
     error,

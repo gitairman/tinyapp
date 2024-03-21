@@ -37,8 +37,12 @@
             <td><%= id %></td>
             <td><%= urls[id].longURL %></td>
             <td><%= urls[id].created %></td>
-            <td class="text-center"><%= urls[id].visited %></td>
-            <td class="text-center"><%= urls[id].uniqueVisits.length %></td>
+            <td class="text-center">
+              <%= Object.keys(urls[id].visited).length %>
+            </td>
+            <td class="text-center">
+              <%= new Set(Object.values(urls[id].visited)).size %>
+            </td>
             <td>
               <form method="GET" action="/urls/<%= id %>">
                 <button class="btn btn-secondary">Edit</button>
