@@ -24,10 +24,16 @@ const urlDatabase = {
   b6UTxQ: {
     longURL: 'https://www.tsn.ca',
     userID: 'aJ48lW',
+    created: Date.now(),
+    visited: 0,
+    uniqueVisits: [],
   },
   i3BoGr: {
     longURL: 'https://www.google.ca',
     userID: 'aJ48lW',
+    created: Date.now(),
+    visited: 0,
+    uniqueVisits: [],
   },
 };
 
@@ -137,10 +143,10 @@ app.get('/urls/:id', (req, res) => {
   }
   if (error) res.append('error', error);
 
-  const { longURL } = urlDatabase[id] || { longURL: null };
+  // const { longURL } = urlDatabase[id] || { longURL: null };
   const templateVars = {
+    ...urlDatabase[id],
     id,
-    longURL,
     email: user ? user.email : '',
     error,
   };

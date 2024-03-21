@@ -17,11 +17,37 @@
     <% } else { %>
     <div class="card text-center">
       <div class="card-header"></div>
-      <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= longURL %></h5>
-        <p class="card-text">
-          Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
-        </p>
+      <div class="card-body table-responsive">
+        <table class="table table-borderless m-auto w-auto">
+          <tbody>
+            <tr>
+              <td class="text-right">
+                <h5 class="card-title">TinyURL for:</h5>
+              </td>
+              <td class="text-left"><h5><%= longURL %></h5></td>
+            </tr>
+            <tr>
+              <td class="text-right"><p class="card-text">Short URL:</p></td>
+              <td class="text-left"><a href="/u/<%= id %>"><%= id %></a></td>
+            </tr>
+            <tr>
+              <td class="text-right"><p class="card-text">Date Created:</p></td>
+              <td class="text-left"><p class="card-text"><%= created %></p></td>
+            </tr>
+            <tr>
+              <td class="text-right"><p class="card-text">Visited:</p></td>
+              <td class="text-left"><p class="card-text"><%= visited %></p></td>
+            </tr>
+            <tr>
+              <td class="text-right">
+                <p class="card-text">Unique Visits:</p>
+              </td>
+              <td class="text-left">
+                <p class="card-text"><%= uniqueVisits.length %></p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
       <div class="card-header card-footer text-muted"></div>
       <div class="card-body">
