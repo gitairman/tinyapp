@@ -18,13 +18,28 @@
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body table-responsive">
-        <table class="table table-borderless m-auto w-auto">
+        <table class="table table-borderless table-sm m-auto w-100">
           <tbody>
             <tr>
-              <td class="text-right">
-                <h5 class="card-title">TinyURL for:</h5>
+              <td class="text-right w-50 pt-2">
+                <h5 class="mt-1">TinyURL for:</h5>
               </td>
-              <td class="text-left"><h5><%= longURL %></h5></td>
+              <td class="text-left">
+                <form
+                  class="form-inline"
+                  method="POST"
+                  action="/urls/<%= id %>?_method=PATCH">
+                  <input
+                    style="font-size: 1.4rem"
+                    class="form-control"
+                    type="url"
+                    id="edit_longURL"
+                    name="editedURL"
+                    value="<%= longURL %>"
+                    placeholder="https://" />
+                  <button class="btn btn-primary ml-1">Edit</button>
+                </form>
+              </td>
             </tr>
             <tr>
               <td class="text-right"><p class="card-text">Short URL:</p></td>
@@ -52,11 +67,12 @@
             </tr>
           </tbody>
         </table>
-        <table class="table table-sm table-bordered m-auto w-auto">
+
+        <% if (Object.keys(visited).length > 0) { %>
+        <table class="table table-sm table-bordered w-auto mx-auto mt-4">
           <tbody>
-            <% if (Object.keys(visited).length > 0) { %>
             <tr>
-              <td><h6>Visited On</h6></td>
+              <td class="w-50"><h6>Visited On</h6></td>
               <td><h6>Visited By</h6></td>
             </tr>
             <% for (const visit of Object.entries(visited)) { %>
@@ -66,27 +82,14 @@
                   <%= new Date(Number(visit[0])).toUTCString() %>
                 </p>
               </td>
-              <td class="text-left">
+              <td>
                 <p class="card-text"><%= visit[1] %></p>
               </td>
             </tr>
-            <% } %> <% } %>
+            <% } %>
           </tbody>
         </table>
-      </div>
-      <div class="card-header card-footer text-muted"></div>
-      <div class="card-body">
-        <h4 class="card-title">Edit</h4>
-        <form method="POST" action="/urls/<%= id %>?_method=PUT">
-          <label for="edit_longURL">New URL: </label>
-          <input
-            type="url"
-            id="edit_longURL"
-            name="editedURL"
-            value="https://"
-            placeholder="https://" />
-          <button class="btn btn-primary">Submit</button>
-        </form>
+        <% } %>
       </div>
       <div class="card-footer text-muted"></div>
     </div>

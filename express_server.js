@@ -153,7 +153,7 @@ app.get('/urls/:id', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-app.put('/urls/:id', (req, res) => {
+app.patch('/urls/:id', (req, res) => {
   const userId = req.session.user_id;
   const id = req.params.id;
   if (!urlDatabase[id]) {
