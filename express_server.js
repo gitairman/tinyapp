@@ -1,4 +1,5 @@
 const express = require('express');
+const methodOverride = require('method-override');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 const {
@@ -19,6 +20,7 @@ app.use(
     secret: 'sophieIsTheBest',
   })
 );
+app.use(methodOverride('_method'));
 
 const urlDatabase = {
   b6UTxQ: {
@@ -154,7 +156,7 @@ app.get('/urls/:id', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-app.post('/urls/:id', (req, res) => {
+app.put('/urls/:id', (req, res) => {
   const userId = req.session.user_id;
   const id = req.params.id;
   if (!urlDatabase[id]) {
@@ -246,7 +248,7 @@ app.post('/logout', (req, res) => {
   res.redirect('/login');
 });
 
-app.post('/urls/:id/delete', (req, res) => {
+app.delete('/urls/:id/', (req, res) => {
   const userId = req.session.user_id;
   const id = req.params.id;
   if (!urlDatabase[id]) {

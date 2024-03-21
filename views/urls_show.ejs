@@ -52,7 +52,7 @@
       <div class="card-header card-footer text-muted"></div>
       <div class="card-body">
         <h4 class="card-title">Edit</h4>
-        <form method="POST" action="/urls/<%= id %>">
+        <form method="POST" action="/urls/<%= id %>?_method=PUT">
           <label for="edit_longURL">New URL: </label>
           <input
             type="url"
